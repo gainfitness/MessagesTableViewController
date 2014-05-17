@@ -287,6 +287,7 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
     self.bubbleView.cachedBubbleFrameRect = CGRectNull;
     self.bubbleView.startWidth = NAN;
     self.bubbleView.subtractFromWidth = 0.0;
+    [self.bubbleView.foregroundImageButton setImage:nil forState:UIControlStateNormal];
     self.timestampLabel.text = nil;
     self.sideTimestampLabel.text = nil;
     self.avatarImageView = nil;
@@ -431,6 +432,10 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
 
 - (BOOL)becomeFirstResponder
 {
+    if (self.bubbleView.type == JSBubbleMessageTypeNotification) {
+        return NO;
+    }
+    
     return [super becomeFirstResponder];
 }
 
