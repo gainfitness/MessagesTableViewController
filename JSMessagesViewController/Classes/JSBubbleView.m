@@ -200,7 +200,7 @@
         CGSize bubbleSize;
         
         if(self.type == JSBubbleMessageTypeNotification) {
-            bubbleSize = [JSBubbleView neededSizeForAttributedText:self.textView.attributedText offset:self.hasAvatar ? [JSBubbleView heightForSingleLine] : 0];
+            bubbleSize = [JSBubbleView neededSizeForAttributedText:self.textView.attributedText offset:self.hasAvatar ? [JSBubbleView heightForSingleLine] : 10.0];
 
             
             self.cachedBubbleFrameRect = CGRectIntegral((CGRect){kMarginLeftRight, kMarginTop, bubbleSize.width - (kMarginLeftRight*2), bubbleSize.height + (kMarginTop / 1.5)});

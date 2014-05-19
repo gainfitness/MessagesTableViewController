@@ -402,7 +402,7 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
     CGFloat offset = 0;
     
     if (type == JSBubbleMessageTypeNotification) {
-        offset = hasAvatar ? [JSBubbleView heightForSingleLine] : 0;
+        offset = hasAvatar ? [JSBubbleView heightForSingleLine] : 10.0f;
     }
     
     CGFloat bubbleHeight = attributedText == nil ? [JSBubbleView neededHeightForText:text type:type] : [JSBubbleView neededHeightForAttributedText:attributedText offset:offset];
