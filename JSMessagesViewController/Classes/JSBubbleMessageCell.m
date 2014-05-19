@@ -209,18 +209,19 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
     CGRect frame = CGRectMake(bubbleX - offsetX,
                               bubbleY,
                               self.contentView.frame.size.width - bubbleX,
-                              self.contentView.frame.size.height - _timestampLabel.frame.size.height - _subtitleLabel.frame.size.height - bubbleY);
+                              self.contentView.frame.size.height - _timestampLabel.frame.size.height - _subtitleLabel.frame.size.height);
     
     JSBubbleView *bubbleView = [[JSBubbleView alloc] initWithFrame:frame
                                                         bubbleType:type
                                                    bubbleImageView:bubbleImageView];
+    bubbleView.clipsToBounds = YES;
     
     if (hasAvatar) bubbleView.hasAvatar = YES;
     
     
-    bubbleView.autoresizingMask = (UIViewAutoresizingFlexibleWidth
+    /*bubbleView.autoresizingMask = (UIViewAutoresizingFlexibleWidth
                                    | UIViewAutoresizingFlexibleHeight
-                                   | UIViewAutoresizingFlexibleBottomMargin);
+                                   | UIViewAutoresizingFlexibleBottomMargin);*/
     
     [self.contentView addSubview:bubbleView];
     [self.contentView sendSubviewToBack:bubbleView];
@@ -287,6 +288,7 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
     self.bubbleView.cachedBubbleFrameRect = CGRectNull;
     self.bubbleView.startWidth = NAN;
     self.bubbleView.subtractFromWidth = 0.0;
+    [self.bubbleView.foregroundImageButton setImage:nil forState:UIControlStateNormal];
     self.timestampLabel.text = nil;
     self.sideTimestampLabel.text = nil;
     self.avatarImageView = nil;
@@ -431,6 +433,10 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
 
 - (BOOL)becomeFirstResponder
 {
+    if (self.bubbleView.type == JSBubbleMessageTypeNotification) {
+        return NO;
+    }
+    
     return [super becomeFirstResponder];
 }
 
