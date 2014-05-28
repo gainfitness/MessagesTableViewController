@@ -356,8 +356,8 @@
     
     self.avatarImageView = imageview;
     self.avatarImageView.hidden = !self.hasAvatar;
-    self.avatarImageView.frame = CGRectMake(2, 1.5, size-5, size-5);
-    self.avatarImageView.layer.cornerRadius = (size-5)/2;
+    self.avatarImageView.frame = CGRectMake(3, 4.5, size-10, size-10);
+    self.avatarImageView.layer.cornerRadius = (size-8)/2;
     self.avatarImageView.clipsToBounds = YES;
     self.avatarImageView.backgroundColor = [UIColor redColor];
     
