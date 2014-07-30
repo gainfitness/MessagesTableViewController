@@ -187,7 +187,16 @@
 
 - (void)sendPressed:(UIButton *)sender
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    [self.messageInputView.textView resignFirstResponder];
+    [self.messageInputView.textView becomeFirstResponder];
     [self.delegate didSendText:[self.messageInputView.textView.text js_stringByTrimingWhitespace]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleWillHideKeyboardNotification:) name:UIKeyboardWillHideNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(handleWillShowKeyboardNotification:)
+												 name:UIKeyboardWillShowNotification
+                                               object:nil];
 }
 
 #pragma mark - Table view data source
