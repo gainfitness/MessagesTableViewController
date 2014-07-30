@@ -22,11 +22,14 @@
 #define kMarginBottom 4.0f
 #define kPaddingTop 4.0f
 #define kPaddingBottom 8.0f
-#define kBubblePaddingRight 35.0f
+#define kNotificationBubblePaddingRight 43.0f
+#define kBubblePaddingRight 33.0f
 
 #define kMarginLeftRight 10.0f
 
-#define kForegroundImageViewOffset 12.0f
+#define kForegroundImageViewOffset 22.0f //for fist bump or right-side image on notification
+
+#define kMessageBubbleTailWidth 6.0f
 
 
 @interface JSBubbleView()
@@ -75,7 +78,7 @@
         _bubbleImageView = bubbleImageView;
         
         UILabel *textView = [[UILabel alloc]init];
-        textView.font = [UIFont systemFontOfSize:16.0f];
+        textView.font = [UIFont systemFontOfSize:17.0f];
         textView.textColor = [UIColor blackColor];
         textView.userInteractionEnabled = YES;
         textView.backgroundColor = [UIColor clearColor];
@@ -85,10 +88,10 @@
         [self bringSubviewToFront:textView];
         _textView = textView;
         
-        UIImageView *foregroundImageView = [[UIImageView alloc]init];
-        [self addSubview:foregroundImageView];
-        [self bringSubviewToFront:foregroundImageView];
-        _foregroundImageView = foregroundImageView;
+        UIButton *foregroundImageButton = [[UIButton alloc]init];
+        [self addSubview:foregroundImageButton];
+        [self bringSubviewToFront:foregroundImageButton];
+        _foregroundImageButton = foregroundImageButton;
         
         [self addTextViewObservers];
         
@@ -197,7 +200,7 @@
         CGSize bubbleSize;
         
         if(self.type == JSBubbleMessageTypeNotification) {
-            bubbleSize = [JSBubbleView neededSizeForAttributedText:self.textView.attributedText offset:self.hasAvatar ? [JSBubbleView heightForSingleLine] : 0];
+            bubbleSize = [JSBubbleView neededSizeForAttributedText:self.textView.attributedText offset:self.hasAvatar ? [JSBubbleView heightForSingleLine] : 10.0];
 
             
             self.cachedBubbleFrameRect = CGRectIntegral((CGRect){kMarginLeftRight, kMarginTop, bubbleSize.width - (kMarginLeftRight*2), bubbleSize.height + (kMarginTop / 1.5)});
@@ -224,8 +227,10 @@
     self.bubbleImageView.frame = bubbleImageViewFrame;
     
     if(self.type == JSBubbleMessageTypeNotification) {
-        // for arrows
-        [self.foregroundImageView setFrame:(CGRect){self.bubbleImageView.frame.size.width - kForegroundImageViewOffset, 22.0, 4.0, 7.0}];
+        // for fist bump icon
+        [self.foregroundImageButton setFrame:(CGRect){self.bubbleImageView.frame.size.width - kForegroundImageViewOffset, 0, self.frame.size.width-(self.bubbleImageView.frame.size.width-kForegroundImageViewOffset), self.frame.size.height}];
+        self.foregroundImageButton.center = CGPointMake(self.foregroundImageButton.center.x, self.bubbleImageView.center.y);
+        [self.foregroundImageButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
     }
     
     if(isnan(self.startWidth)) {
@@ -239,14 +244,25 @@
     CGFloat offset = [JSBubbleView heightForSingleLine];
     
     CGFloat textX = self.bubbleImageView.frame.origin.x + (self.hasAvatar ? offset : 0);
+    CGFloat textY = self.bubbleImageView.frame.origin.y;
     
     if(self.type == JSBubbleMessageTypeIncoming) {
-        textX += (self.bubbleImageView.image.capInsets.left / 2.0f);
+        textX += kMessageBubbleTailWidth;  // begin after left-tail
     }
+
+    CGFloat textWidth = self.bubbleImageView.frame.size.width - (self.bubbleImageView.image.capInsets.right / 2.0f);
+    if(self.type == JSBubbleMessageTypeNotification) {
+        textY += 1.0f;
+        textWidth -= kForegroundImageViewOffset;
+        textWidth -= 22.0f;
+    } else {
+        textWidth -= 18.0f;
+    }
+    textWidth -= (self.hasAvatar ? offset : 0);
     
     CGRect textFrame = CGRectMake(textX,
-                                  self.bubbleImageView.frame.origin.y,
-                                  self.bubbleImageView.frame.size.width - (self.bubbleImageView.image.capInsets.right / 2.0f) - kForegroundImageViewOffset - (self.hasAvatar ? offset: 0),
+                                  textY,
+                                  textWidth,
                                   self.bubbleImageView.frame.size.height - kMarginTop);
 
     
@@ -255,12 +271,10 @@
     // for the insets...  some values had to change to make it work with UILabel.
     
     textFrame.origin.y += 4.0f;
-    textFrame.origin.x += 8.0f;
-    textFrame.size.width -= 8.0f;
+    textFrame.origin.x += 12.0f;
     textFrame.size.height -= 2.0f;
     
     [self.textView setFrame:textFrame];
-    
 }
 
 #pragma mark - Bubble view
@@ -280,7 +294,7 @@
 }
 
 +(CGSize)textSizeForAttributedText:(NSAttributedString *)attributedText offset:(CGFloat)offset {
-    CGFloat maxWidth = 270.0 - offset;  // this seems to be the magic number...  not sure exactly why, but it works for sizing.
+    CGFloat maxWidth = 255.0 - offset;  // this seems to be the magic number...  not sure exactly why, but it works for sizing.
     
     CGRect boundingRect = [attributedText boundingRectWithSize:(CGSize){maxWidth, CGFLOAT_MAX} options:(NSStringDrawingUsesLineFragmentOrigin|NSStringDrawingUsesFontLeading) context:nil];
     
@@ -291,7 +305,9 @@
 {
     CGSize textSize = [JSBubbleView textSizeForText:text type:type];
     
-	return CGSizeMake(textSize.width + kBubblePaddingRight,
+    CGFloat bubblePaddingRight = (type == JSBubbleMessageTypeNotification ? kNotificationBubblePaddingRight : kBubblePaddingRight);
+    
+	return CGSizeMake(textSize.width + bubblePaddingRight,
                       textSize.height + kPaddingTop + kPaddingBottom);
 }
 
@@ -324,9 +340,9 @@
     
     self.bubbleImageView.frame = imageViewFrame;
     
-    CGRect foregroundImageViewFrame = self.foregroundImageView.frame;
-    foregroundImageViewFrame.size.width = self.startWidth - self.subtractFromWidth - kForegroundImageViewOffset;
-    self.foregroundImageView.frame = foregroundImageViewFrame;
+    CGRect foregroundImageButtonFrame = self.foregroundImageButton.frame;
+    foregroundImageButtonFrame.size.width = self.startWidth - self.subtractFromWidth - kForegroundImageViewOffset;
+    self.foregroundImageButton.frame = foregroundImageButtonFrame;
     
     [self layoutTextViewFrame];
     
@@ -340,8 +356,8 @@
     
     self.avatarImageView = imageview;
     self.avatarImageView.hidden = !self.hasAvatar;
-    self.avatarImageView.frame = CGRectMake(2, 1.5, size-5, size-5);
-    self.avatarImageView.layer.cornerRadius = (size-5)/2;
+    self.avatarImageView.frame = CGRectMake(3, 4.5, size-10, size-10);
+    self.avatarImageView.layer.cornerRadius = (size-8)/2;
     self.avatarImageView.clipsToBounds = YES;
     self.avatarImageView.backgroundColor = [UIColor redColor];
     

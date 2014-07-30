@@ -85,7 +85,7 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
     label.backgroundColor = [UIColor clearColor];
     label.textAlignment = NSTextAlignmentCenter;
     label.textColor = [UIColor colorWithRed:0.557 green:0.557 blue:0.576 alpha:1.0];
-    label.font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:12.0f];
+    label.font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:11.5f];
     
     [self.contentView addSubview:label];
     [self.contentView bringSubviewToFront:label];
@@ -181,7 +181,7 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
     
     if(hasTimestamp) {
         [self configureTimestampLabel];
-        bubbleY = 14.0f;
+        bubbleY = self.timestampLabel.frame.origin.y + self.timestampLabel.frame.size.height;// 14.0f;
     }
     
     [self configureSideTimestampLabel];
@@ -214,13 +214,14 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
     JSBubbleView *bubbleView = [[JSBubbleView alloc] initWithFrame:frame
                                                         bubbleType:type
                                                    bubbleImageView:bubbleImageView];
+    bubbleView.clipsToBounds = YES;
     
     if (hasAvatar) bubbleView.hasAvatar = YES;
     
     
-    bubbleView.autoresizingMask = (UIViewAutoresizingFlexibleWidth
+    /*bubbleView.autoresizingMask = (UIViewAutoresizingFlexibleWidth
                                    | UIViewAutoresizingFlexibleHeight
-                                   | UIViewAutoresizingFlexibleBottomMargin);
+                                   | UIViewAutoresizingFlexibleBottomMargin);*/
     
     [self.contentView addSubview:bubbleView];
     [self.contentView sendSubviewToBack:bubbleView];
@@ -287,6 +288,7 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
     self.bubbleView.cachedBubbleFrameRect = CGRectNull;
     self.bubbleView.startWidth = NAN;
     self.bubbleView.subtractFromWidth = 0.0;
+    [self.bubbleView.foregroundImageButton setImage:nil forState:UIControlStateNormal];
     self.timestampLabel.text = nil;
     self.sideTimestampLabel.text = nil;
     self.avatarImageView = nil;
@@ -391,7 +393,7 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
                                            subtitle:(BOOL)hasSubtitle
                                                type:(JSBubbleMessageType)type
 {
-    CGFloat timestampHeight = hasTimestamp ? kJSTimeStampLabelHeight : 0.0f;
+    CGFloat timestampHeight = hasTimestamp ? kJSLabelPadding + kJSTimeStampLabelHeight : 0.0f;
     CGFloat avatarHeight = hasAvatar ? kJSAvatarImageSize : 0.0f;
 	CGFloat subtitleHeight = hasSubtitle ? kJSSubtitleLabelHeight : 0.0f;
     
@@ -400,7 +402,7 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
     CGFloat offset = 0;
     
     if (type == JSBubbleMessageTypeNotification) {
-        offset = hasAvatar ? [JSBubbleView heightForSingleLine] : 0;
+        offset = hasAvatar ? [JSBubbleView heightForSingleLine] : 10.0f;
     }
     
     CGFloat bubbleHeight = attributedText == nil ? [JSBubbleView neededHeightForText:text type:type] : [JSBubbleView neededHeightForAttributedText:attributedText offset:offset];
@@ -431,6 +433,10 @@ NSString * const GFNotificationRetryMessage = @"GFNotificationRetryMessage";
 
 - (BOOL)becomeFirstResponder
 {
+    if (self.bubbleView.type == JSBubbleMessageTypeNotification) {
+        return NO;
+    }
+    
     return [super becomeFirstResponder];
 }
 
