@@ -270,6 +270,9 @@ typedef NS_ENUM(NSUInteger, JSMessagesViewSubtitlePolicy) {
  */
 @interface JSMessagesViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, UITextViewDelegate>
 
+
+@property (assign, nonatomic) BOOL isUserScrolling;
+
 /**
  *  The object that acts as the delegate of the receiving messages view.
  */

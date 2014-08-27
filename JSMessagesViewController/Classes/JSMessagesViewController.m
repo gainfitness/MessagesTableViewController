@@ -19,7 +19,6 @@
 @interface JSMessagesViewController () <JSDismissiveTextViewDelegate>
 
 @property (assign, nonatomic) CGFloat previousTextViewContentHeight;
-@property (assign, nonatomic) BOOL isUserScrolling;
 
 - (void)setup;
 
