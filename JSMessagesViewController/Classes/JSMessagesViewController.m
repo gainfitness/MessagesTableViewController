@@ -429,8 +429,8 @@
 	self.isUserScrolling = YES;
 }
 
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
-{
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     self.isUserScrolling = NO;
 }
 
